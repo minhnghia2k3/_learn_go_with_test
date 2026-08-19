@@ -3,3 +3,6 @@ test:
 
 bench:
 	go test -bench=./... -benchmem
+
+cover:
+	go test -cover
