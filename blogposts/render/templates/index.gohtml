@@ -1,0 +1,3 @@
+{{template "top" .}}
+<ol>{{range .}}<li><a href="/post/{{.SanitiseSlug}}">{{.Title}}</a></li>{{end}}<ol>
+{{template "bottom" .}}

@@ -8,6 +8,18 @@ import (
 	"strings"
 )
 
+type Post struct {
+	Title, Description, Body string
+	Tags                     []string
+}
+
+// SanitiseSlug a post method
+// used as function in templates
+// convert a string to slug
+func (p *Post) SanitiseSlug() string {
+	return strings.ToLower(strings.ReplaceAll(p.Title, " ", "-"))
+}
+
 func getPost(filesystem fs.FS, f fs.DirEntry) (Post, error) {
 	postFile, err := filesystem.Open(f.Name())
 	if err != nil {

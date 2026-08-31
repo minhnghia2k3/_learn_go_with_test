@@ -10,13 +10,6 @@ const (
 	tagsPrefix        = "Tags: "
 )
 
-type Post struct {
-	Title       string
-	Description string
-	Tags        []string
-	Body        string
-}
-
 func NewPostFromFS(filesystem fs.FS) ([]Post, error) {
 	dir, err := fs.ReadDir(filesystem, ".")
 	if err != nil {
