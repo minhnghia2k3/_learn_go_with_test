@@ -8,7 +8,7 @@ import (
 
 func TestRecodingWinsAndRetrievingThem(t *testing.T) {
 	store := NewInMemoryPlayerStore()
-	server := PlayerServer{store}
+	server := NewPlayerServer(store)
 
 	player := "Pepper"
 
@@ -16,10 +16,25 @@ func TestRecodingWinsAndRetrievingThem(t *testing.T) {
 	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(t, player))
 	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(t, player))
 
-	response := httptest.NewRecorder()
-	request := newGetScoreRequest(t, player)
-	server.ServeHTTP(response, request)
+	t.Run("get score", func(t *testing.T) {
+		response := httptest.NewRecorder()
+		request := newGetScoreRequest(t, player)
+		server.ServeHTTP(response, request)
 
-	assertStatusCode(t, response.Code, http.StatusOK)
-	assertScore(t, response.Body.String(), "3")
+		assertStatusCode(t, response.Code, http.StatusOK)
+		assertScore(t, response.Body.String(), "3")
+	})
+
+	t.Run("get league", func(t *testing.T) {
+		response := httptest.NewRecorder()
+		request := newGetLeague(t)
+		server.ServeHTTP(response, request)
+
+		got := getLeagueFromResponse(t, response.Body)
+		want := []Player{
+			{Name: "Pepper", Wins: 3},
+		}
+
+		assertLeague(t, got, want)
+	})
 }
