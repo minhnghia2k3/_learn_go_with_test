@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
 type PlayerStore interface {
 	GetPlayerScore(name string) int
 	RecordWin(name string)
+	UpdateScore(name string, score int)
 }
 
 type PlayerServer struct {
@@ -17,15 +19,22 @@ type PlayerServer struct {
 
 func (s *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	method := r.Method
-	name := strings.TrimPrefix(r.URL.Path, "/players/")
+	parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/players/"), "/")
+	name := parts[0]
 
 	switch method {
 	case http.MethodGet:
 		s.showScore(w, name)
 	case http.MethodPost:
 		s.processWin(w, name)
+	case http.MethodPut:
+		if len(parts) < 2 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		score, _ := strconv.Atoi(parts[1])
+		s.updateScore(w, name, score)
 	}
-
 }
 
 func (s *PlayerServer) showScore(w http.ResponseWriter, name string) {
@@ -42,14 +51,7 @@ func (s *PlayerServer) processWin(w http.ResponseWriter, name string) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (s *PlayerServer) GetPlayerScore(name string) int {
-	if name == "Floyd" {
-		return 10
-	}
-
-	if name == "Pepper" {
-		return 20
-	}
-
-	return 0
+func (s *PlayerServer) updateScore(w http.ResponseWriter, name string, score int) {
+	s.store.UpdateScore(name, score)
+	w.WriteHeader(http.StatusOK)
 }

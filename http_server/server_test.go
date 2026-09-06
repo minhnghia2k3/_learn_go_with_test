@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 )
 
@@ -18,6 +19,10 @@ func (s *StubPlayerStore) GetPlayerScore(player string) int {
 
 func (s *StubPlayerStore) RecordWin(name string) {
 	s.winCalls = append(s.winCalls, name)
+}
+
+func (s *StubPlayerStore) UpdateScore(name string, score int) {
+	s.scores[name] = score
 }
 
 func TestGetPlayers(t *testing.T) {
@@ -85,6 +90,44 @@ func TestStoreScores(t *testing.T) {
 			t.Errorf("got name %q, expected name %q", store.winCalls[0], name)
 		}
 	})
+}
+
+func TestUpdateScores(t *testing.T) {
+	srv := PlayerServer{&StubPlayerStore{
+		scores: make(map[string]int),
+	}}
+	t.Run("should update player score", func(t *testing.T) {
+		player := "Pepper"
+		want := "3"
+		path := fmt.Sprintf("/players/%s/%s", player, want)
+
+		request, _ := http.NewRequest(http.MethodPut, path, nil)
+		response := httptest.NewRecorder()
+
+		srv.ServeHTTP(response, request)
+
+		assertStatusCode(t, response.Code, http.StatusOK)
+
+		playerScore := srv.store.GetPlayerScore(player)
+		// convert int to string
+		got := strconv.Itoa(playerScore)
+
+		assertScore(t, got, want)
+	})
+
+	t.Run("should not update when no score", func(t *testing.T) {
+		player := "Pepper"
+		path := fmt.Sprintf("/players/%s", player)
+
+		request, _ := http.NewRequest(http.MethodPut, path, nil)
+		response := httptest.NewRecorder()
+
+		srv.ServeHTTP(response, request)
+
+		assertStatusCode(t, response.Code, http.StatusBadRequest)
+	})
+
+
 }
 
 func newGetScoreRequest(t *testing.T, player string) *http.Request {

@@ -25,6 +25,12 @@ func (s *InMemoryPlayerStore) RecordWin(player string) {
 	s.mu.Unlock()
 }
 
+func (s *InMemoryPlayerStore) UpdateScore(player string, score int) {
+	s.mu.Lock()
+	s.store[player] = score
+	s.mu.Unlock()
+}
+
 func main() {
 	server := &PlayerServer{NewInMemoryPlayerStore()}
 
