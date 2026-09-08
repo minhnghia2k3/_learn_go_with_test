@@ -27,7 +27,7 @@ func (s *InMemoryPlayerStore) UpdateScore(player string, score int) {
 	s.mu.Unlock()
 }
 
-func (s *InMemoryPlayerStore) GetLeague() (league []Player) {
+func (s *InMemoryPlayerStore) GetLeague() (league League) {
 	for name, score := range s.store {
 		league = append(league, Player{
 			Name: name,

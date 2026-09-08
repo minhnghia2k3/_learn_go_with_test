@@ -7,7 +7,12 @@ import (
 )
 
 func TestRecodingWinsAndRetrievingThem(t *testing.T) {
-	store := NewInMemoryPlayerStore()
+	database, removeFile := createTempFile(t, `[]`)
+	defer removeFile()
+	store, err := NewFileSystemPLayerStore(database)
+	if err != nil {
+		t.Fatalf("did'nt expect an error but got one, %v", err)
+	}
 	server := NewPlayerServer(store)
 
 	player := "Pepper"

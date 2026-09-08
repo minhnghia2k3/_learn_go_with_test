@@ -31,7 +31,7 @@ func (s *StubPlayerStore) UpdateScore(name string, score int) {
 	s.scores[name] = score
 }
 
-func (s *StubPlayerStore) GetLeague() []Player {
+func (s *StubPlayerStore) GetLeague() League {
 	return s.league
 }
 
