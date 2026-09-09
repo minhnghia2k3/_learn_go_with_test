@@ -1,4 +1,4 @@
-package main
+package poker
 
 import (
 	"encoding/json"
@@ -12,28 +12,6 @@ import (
 )
 
 const jsonContentType = "application/json"
-
-type StubPlayerStore struct {
-	scores   map[string]int
-	winCalls []string
-	league   []Player
-}
-
-func (s *StubPlayerStore) GetPlayerScore(player string) int {
-	return s.scores[player]
-}
-
-func (s *StubPlayerStore) RecordWin(name string) {
-	s.winCalls = append(s.winCalls, name)
-}
-
-func (s *StubPlayerStore) UpdateScore(name string, score int) {
-	s.scores[name] = score
-}
-
-func (s *StubPlayerStore) GetLeague() League {
-	return s.league
-}
 
 func TestGetPlayers(t *testing.T) {
 	store := &StubPlayerStore{
